@@ -11,6 +11,7 @@ const GENERATED = [
   [/(^|\/)go\.sum$/, "Change go.mod and run go mod tidy."],
   [/^flake\.lock$/, "Run nix flake update."],
   [/(^|\/)dist\//, "Change the source and run the build."],
+  [/__screenshots__\//, "Run pnpm nx e2e web-e2e --update-snapshots."],
 ];
 
 const handlers = { SessionStart, PreToolUse, PostToolUse, SubagentStop };

@@ -1,5 +1,5 @@
 ls:
-  .dir: kebab-case | regex:^\.?[a-z]+$ | regex:^@[a-z]+$
+  .dir: kebab-case | regex:^\.?[a-z]+$ | regex:^@[a-z]+$ | regex:^__[a-z]+__$
   .go: snake_case
   .ts: kebab-case
   .tsx: PascalCase | kebab-case

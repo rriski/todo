@@ -17,6 +17,13 @@
       "executor": "nx:run-commands",
       "options": { "command": "golangci-lint run", "cwd": "apps/api" }
     },
+    "fuzz": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "go test -run='^$' -fuzz=FuzzDecodeTask -fuzztime=30s .",
+        "cwd": "apps/api"
+      }
+    },
     "serve": {
       "executor": "nx:run-commands",
       "continuous": true,

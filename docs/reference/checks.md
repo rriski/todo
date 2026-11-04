@@ -15,3 +15,13 @@ Every rule belongs to one category. A failing rule says how to fix the problem. 
 | Package exports | `exports` in a `package.json` points at real files | `tools/checks/package-exports.mjs` |
 | Prose | No filler; a how-to guide promises no lesson | Vale, `.vale.ini` |
 | Ratchet | Suppressions, skipped tests and TODOs only fall | `tools/checks/ratchet.mjs`, `ratchet.json` |
+
+## Tests
+
+| Kind | What it proves | Where |
+| --- | --- | --- |
+| Unit | One behavior, in Vitest or `go test` | Beside the code |
+| Browser | A user can add and complete a task | `apps/web-e2e/src/tasks.spec.ts` |
+| Property | Whitespace around a title never changes the verdict; task ids stay unique through any adds and deletes | `task.property.test.ts`, `store_property_test.go` |
+| Fuzz | No request body crashes the API, and a stored title is never blank | `apps/api/task_fuzz_test.go` |
+| Visual | The task list matches its committed screenshot | `apps/web-e2e/src/visual.spec.ts` |
