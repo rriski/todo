@@ -40,10 +40,11 @@ describe("isOverdue", () => {
 
 describe("formatDueDate", () => {
   it.each([
-    { locale: "en-US", expected: "11/4/2026" },
-    { locale: "de-DE", expected: "4.11.2026" },
-    { locale: "fi-FI", expected: "4.11.2026" },
-  ])("formats the date as $expected in $locale", ({ locale, expected }) => {
-    expect(formatDueDate("2026-11-04", locale)).toBe(expected);
+    { dueDate: "2026-11-04", locale: "en-US", expected: "11/4/2026" },
+    { dueDate: "2026-11-04", locale: "de-DE", expected: "4.11.2026" },
+    { dueDate: "2026-11-04", locale: "fi-FI", expected: "4.11.2026" },
+    { dueDate: "0026-11-04", locale: "en-US", expected: "11/4/26" },
+  ])("formats $dueDate as $expected in $locale", ({ dueDate, locale, expected }) => {
+    expect(formatDueDate(dueDate, locale)).toBe(expected);
   });
 });

@@ -22,8 +22,7 @@ export function isOverdue(task: Task, today: string): boolean {
 }
 
 export function formatDueDate(dueDate: string, locales?: Intl.LocalesArgument): string {
-  const [year, month, day] = dueDate.split("-").map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString(locales);
+  return new Date(`${dueDate}T00:00`).toLocaleDateString(locales);
 }
 
 export function countOpen(tasks: Task[]): number {
