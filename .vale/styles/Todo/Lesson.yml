@@ -1,0 +1,8 @@
+extends: existence
+message: "'%s' promises a lesson. State the task's outcome, or move the page to docs/tutorials."
+level: error
+ignorecase: true
+tokens:
+  - you will learn
+  - learn how
+  - in this tutorial

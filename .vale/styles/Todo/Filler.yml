@@ -1,0 +1,10 @@
+extends: existence
+message: "Cut '%s' and say what happens instead."
+level: error
+ignorecase: true
+tokens:
+  - simply
+  - just
+  - easily
+  - obviously
+  - basically
