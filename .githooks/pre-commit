@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+[ -n "${TRACED_HOOK:-}" ] || [ ! -f .scratch/current-trace ] || TRACED_HOOK=1 exec scripts/traced pre-commit -- "$0" "$@"
+
 node tools/checks/run.mjs
 
 staged() { git diff --cached --name-only --diff-filter=ACMR -- "$@"; }

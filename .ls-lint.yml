@@ -8,6 +8,7 @@ ls:
   .spec.ts: kebab-case
   .config.ts: kebab-case
   .mjs: kebab-case
+  .test.mjs: kebab-case
   .sh: kebab-case
   .md: kebab-case | SCREAMING_SNAKE_CASE
   .yaml: kebab-case

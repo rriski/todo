@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+[ -n "${TRACED_HOOK:-}" ] || [ ! -f .scratch/current-trace ] || TRACED_HOOK=1 exec scripts/traced pre-push -- "$0" "$@"
+
 if git fetch --quiet origin main; then
   if ! git merge-base --is-ancestor origin/main HEAD; then
     behind=$(git rev-list --count HEAD..origin/main)
@@ -17,4 +19,4 @@ else
   echo "pre-push: cannot fetch origin, so the rebase check did not run."
 fi
 
-exec ./scripts/affected.sh
+exec scripts/traced --if-active affected -- ./scripts/affected.sh

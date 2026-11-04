@@ -2,6 +2,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, relative } from "node:path";
+import { hookSpan } from "../../tools/trace/otlp.mjs";
 
 const MAX_LINES = 10;
 const MAX_BLOCKS = 3;
@@ -17,7 +18,9 @@ const GENERATED = [
 const handlers = { SessionStart, PreToolUse, PostToolUse, SubagentStop };
 const input = JSON.parse(readFileSync(0, "utf8"));
 process.chdir(run("git", ["-C", input.cwd, "rev-parse", "--show-toplevel"]).output.trim());
-handlers[input.hook_event_name]?.();
+const started = Date.now();
+const exitCode = handlers[input.hook_event_name]?.();
+if (exitCode !== undefined) await hookSpan(`hook ${input.hook_event_name}`, started, exitCode);
 
 function SessionStart() {
   const missing = [];
@@ -51,19 +54,21 @@ function PreToolUse() {
 function PostToolUse() {
   const errors = editedFiles().flatMap(formatAndLint);
   if (errors.length) addContext(errors.slice(0, MAX_LINES).join("\n"));
+  return errors.length ? 1 : 0;
 }
 
 function SubagentStop() {
   const state = `.scratch/hooks/${input.agent_id}`;
   const blocks = existsSync(state) ? Number(readFileSync(state, "utf8")) : 0;
-  if (blocks >= MAX_BLOCKS) return;
+  if (blocks >= MAX_BLOCKS) return 0;
   const checks = run("./scripts/affected.sh", []);
-  if (checks.ok) return;
+  if (checks.ok) return 0;
   mkdirSync(dirname(state), { recursive: true });
   writeFileSync(state, String(blocks + 1));
   const errors = checks.output.trim().split("\n").slice(-40).join("\n");
   const reason = `Pre-push checks failed (block ${blocks + 1} of ${MAX_BLOCKS}). Fix these:\n${errors}`;
   console.log(JSON.stringify({ decision: "block", reason }));
+  return 1;
 }
 
 function formatAndLint(file) {
