@@ -18,7 +18,7 @@ The Go API listens on port 8080. Bodies are JSON. A task has `id`, `title`, `com
 
 ## Sort order
 
-`GET /api/tasks` returns three groups, and tasks with the same due date keep the order they were added in:
+`GET /api/tasks` returns three groups. Within a group, tasks with the same due date keep the order they were added in:
 
 1. Overdue tasks, by due date. A task is overdue when it is not completed and its `dueDate` is before `today`.
 2. Other tasks with a due date, by due date. This group includes completed tasks.
