@@ -13,3 +13,8 @@ export function validateTask(task: NewTask): string | null {
 export function countOpen(tasks: Task[]): number {
   return tasks.filter((task) => !task.completed).length;
 }
+
+export function tabTitle(tasks: Task[]): string {
+  const open = countOpen(tasks);
+  return open === 0 ? "Tasks" : `Tasks (${open})`;
+}

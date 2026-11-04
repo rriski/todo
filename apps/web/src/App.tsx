@@ -1,5 +1,5 @@
 import { type SubmitEvent, useEffect, useState } from "react";
-import { countOpen, type Task, validateTask } from "@todo/model";
+import { tabTitle, type Task, validateTask } from "@todo/model";
 import { Button, TaskRow } from "@todo/ui";
 import { addTask, deleteTask, listTasks, setTaskCompleted } from "./api";
 
@@ -13,7 +13,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    document.title = `Tasks (${countOpen(tasks)})`;
+    document.title = tabTitle(tasks);
   }, [tasks]);
 
   async function handleAdd(event: SubmitEvent) {
