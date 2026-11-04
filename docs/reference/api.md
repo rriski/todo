@@ -12,7 +12,7 @@ The Go API listens on port 8080. Bodies are JSON. A task has `id`, `title`, `com
 
 ## Visitor lists
 
-Each visitor has their own list, selected by a `todo_list` cookie that the API sets on the first `/api/` request. The cookie is `HttpOnly`, `Secure` and `SameSite=Lax`.
+Each visitor has their own list, selected by a `todo_list` cookie that the API sets on the first `/api/` request. The cookie is `HttpOnly`, `Secure` and `SameSite=Lax`, and responses under `/api/` send `Cache-Control: no-store`.
 
 - The API ignores a cookie value it did not issue, and starts a new list with a new cookie.
 - The API holds 1,000 lists, and evicts the least recently used one to make room for a new one.

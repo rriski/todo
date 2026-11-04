@@ -229,7 +229,9 @@ func TestBodyOverTheLimitIsRefused(t *testing.T) {
 		body   string
 	}{
 		{"add", http.MethodPost, "/api/tasks", large + `{"title":"Call Sam"}`},
+		{"add with the excess after the value", http.MethodPost, "/api/tasks", `{"title":"Call Sam"}` + large},
 		{"complete", http.MethodPatch, "/api/tasks/1", large + `{"completed":true}`},
+		{"complete with the excess after the value", http.MethodPatch, "/api/tasks/1", `{"completed":true}` + large},
 	}
 
 	for _, tt := range tests {

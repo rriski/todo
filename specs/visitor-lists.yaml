@@ -3,7 +3,7 @@ feature: visitor-lists
 api:
   LIST-1: The API keeps a separate task list for each visitor, selected by a random id in the `todo_list` cookie.
   LIST-2: The cookie is `HttpOnly`, `Secure` and `SameSite=Lax`. Only the server chooses its value; an unknown value gets a new list and a new cookie.
-  LIST-3: Only requests under `/api/` create a list.
+  LIST-3: Only requests under `/api/` create a list, and their responses send `Cache-Control: no-store`.
   LIST-4: The API holds at most 1,000 lists and evicts the least recently used one to make room.
   LIST-5: "`POST /api/tasks` returns 409 and stores nothing when the list already holds 50 tasks."
   LIST-6: "`POST /api/tasks` returns 400 and stores nothing when the trimmed title is over 200 characters."

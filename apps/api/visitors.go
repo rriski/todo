@@ -26,6 +26,7 @@ type visitorLists struct {
 }
 
 func (v *visitorLists) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store")
 	v.handlerFor(w, r).ServeHTTP(w, r)
 }
 

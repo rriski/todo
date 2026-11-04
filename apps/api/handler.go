@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"unicode/utf8"
@@ -97,7 +98,11 @@ func healthz(w http.ResponseWriter, _ *http.Request) {
 }
 
 func decodeBody(w http.ResponseWriter, r *http.Request, body any) bool {
-	err := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBodyBytes)).Decode(body)
+	limited := http.MaxBytesReader(w, r.Body, maxBodyBytes)
+	err := json.NewDecoder(limited).Decode(body)
+	if err == nil {
+		_, err = io.Copy(io.Discard, limited)
+	}
 	var tooLarge *http.MaxBytesError
 	switch {
 	case errors.As(err, &tooLarge):

@@ -47,10 +47,14 @@ test("a visitor sees only their own tasks", async ({ page, browser, baseURL }) =
 
   const other = await browser.newPage({ baseURL });
   await other.goto("/");
+  await other.getByRole("textbox", { name: "New task" }).fill("Theirs alone");
+  await other.getByRole("button", { name: "Add" }).click();
 
-  await expect(other.getByText("No tasks yet.")).toBeVisible();
+  await expect(other.getByRole("checkbox", { name: "Theirs alone" })).toBeVisible();
+  await expect(other.getByRole("checkbox", { name: "Mine alone" })).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole("checkbox", { name: "Mine alone" })).toBeVisible();
+  await expect(page.getByRole("checkbox", { name: "Theirs alone" })).toHaveCount(0);
   await other.close();
 });
 

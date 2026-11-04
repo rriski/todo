@@ -45,8 +45,11 @@ func TestVisitorsSeeOnlyTheirOwnTasks(t *testing.T) {
 }
 
 func TestListCookieAttributes(t *testing.T) {
-	_, cookie := visit(t, newApp(""), nil, http.MethodGet, "/api/tasks", "")
+	response, cookie := visit(t, newApp(""), nil, http.MethodGet, "/api/tasks", "")
 
+	if got := response.Header().Get("Cache-Control"); got != "no-store" {
+		t.Errorf("Cache-Control = %q, want no-store", got)
+	}
 	if cookie == nil {
 		t.Fatal("no cookie set")
 	}
