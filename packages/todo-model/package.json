@@ -1,0 +1,11 @@
+{
+  "name": "@todo/model",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/task.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

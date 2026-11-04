@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Task",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string", "pattern": "\\S" },
+    "completed": { "type": "boolean" }
+  },
+  "required": ["id", "title", "completed"],
+  "additionalProperties": false
+}
