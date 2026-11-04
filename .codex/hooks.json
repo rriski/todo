@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "node .agents/hooks/hook.mjs" }] }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [{ "type": "command", "command": "node .agents/hooks/hook.mjs", "timeout": 10 }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^apply_patch$",
+        "hooks": [{ "type": "command", "command": "node .agents/hooks/hook.mjs", "timeout": 120 }]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [{ "type": "command", "command": "node .agents/hooks/hook.mjs", "timeout": 600 }]
+      }
+    ]
+  }
+}

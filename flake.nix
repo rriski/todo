@@ -18,6 +18,7 @@
           nodejs_26
           pnpm
           vale
+          golangci-lint
         ];
       };
     };

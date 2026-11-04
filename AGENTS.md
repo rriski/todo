@@ -4,7 +4,8 @@ A small todo app in a pnpm and Nx workspace: a React page and a Go API.
 
 ## Commands
 
-- `pnpm install`, then `pnpm exec playwright install chromium`: set up.
+- `./scripts/setup.sh`: set up. Run it inside the devshell, `direnv allow` or `nix develop`.
+- `./scripts/affected.sh`: run the checks for what this branch changed.
 - `pnpm nx run-many -t test build`: run unit tests and builds.
 - `pnpm nx run-many -t typecheck`: check the TypeScript types.
 - `pnpm nx e2e web-e2e`: run the browser test.

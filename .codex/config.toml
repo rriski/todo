@@ -1,3 +1,6 @@
 [mcp_servers.playwright]
 command = "npx"
 args = ["@playwright/mcp@0.0.83"]
+
+[agents]
+max_concurrent_threads_per_session = 4
