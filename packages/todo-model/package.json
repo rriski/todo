@@ -6,6 +6,7 @@
     ".": "./src/task.ts"
   },
   "scripts": {
+    "lint": "oxlint --deny-warnings .",
     "typecheck": "tsc --noEmit"
   }
 }

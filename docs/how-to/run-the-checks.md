@@ -18,8 +18,14 @@ Run the browser test. It starts the page and the API:
 pnpm nx e2e web-e2e
 ```
 
-Check the docs:
+Run the lint rules, tests and type checks for what your change affects:
 
 ```sh
-vale docs
+pnpm nx affected -t lint test typecheck --base=main
+```
+
+Run every lint rule. [Checks](../reference/checks.md) lists them by category:
+
+```sh
+pnpm nx run-many -t lint
 ```

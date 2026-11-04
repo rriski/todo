@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+node tools/checks/run.mjs
+
 staged() { git diff --cached --name-only --diff-filter=ACMR -- "$@"; }
 
 code=$(staged '*.ts' '*.tsx' '*.mjs')

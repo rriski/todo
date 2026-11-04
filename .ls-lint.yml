@@ -1,0 +1,24 @@
+ls:
+  .dir: kebab-case | regex:^\.?[a-z]+$ | regex:^@[a-z]+$
+  .go: snake_case
+  .ts: kebab-case
+  .tsx: PascalCase | kebab-case
+  .test.ts: kebab-case | regex:^[a-z]+\.property$
+  .test.tsx: PascalCase
+  .spec.ts: kebab-case
+  .config.ts: kebab-case
+  .mjs: kebab-case
+  .sh: kebab-case
+  .md: kebab-case | SCREAMING_SNAKE_CASE
+  .yaml: kebab-case
+
+ignore:
+  - .git
+  - .nx
+  - .scratch
+  - .stryker-tmp
+  - .vale
+  - dist
+  - "**/node_modules"
+  - test-results
+  - playwright-report

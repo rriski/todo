@@ -12,7 +12,7 @@ beforeEach(() => {
   vi.mocked(listTasks).mockResolvedValue([milk]);
 });
 
-it("lists tasks", async () => {
+it("lists the tasks", async () => {
   render(<App />);
 
   expect(await screen.findByRole("checkbox", { name: "Buy milk" })).toBeTruthy();

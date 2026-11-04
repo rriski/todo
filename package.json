@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@12.16.0",
   "devDependencies": {
+    "@ls-lint/ls-lint": "^2.3.2",
     "@nx/playwright": "^24.0.3",
     "@nx/vite": "^24.0.3",
     "@nx/vitest": "^24.0.3",

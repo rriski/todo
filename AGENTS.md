@@ -8,6 +8,7 @@ A small todo app in a pnpm and Nx workspace: a React page and a Go API.
 - `./scripts/affected.sh`: run the checks for what this branch changed.
 - `pnpm nx run-many -t test build`: run unit tests and builds.
 - `pnpm nx run-many -t typecheck`: check the TypeScript types.
+- `pnpm nx run-many -t lint`: run every lint rule. `docs/reference/checks.md` lists them.
 - `pnpm nx e2e web-e2e`: run the browser test.
 - `pnpm nx run-many -t serve -p api web`: run the app on port 5173.
 

@@ -3,6 +3,9 @@
   "namedInputs": {
     "default": [
       "{projectRoot}/**/*"
+    ],
+    "lintConfig": [
+      "{workspaceRoot}/.oxlintrc.json"
     ]
   },
   "targetDefaults": {
@@ -26,7 +29,15 @@
     "lint": {
       "cache": true,
       "inputs": [
-        "default"
+        "default",
+        "lintConfig"
+      ]
+    },
+    "typecheck": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "^default"
       ]
     }
   },
