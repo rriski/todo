@@ -39,4 +39,4 @@ Each check runs at the cheapest stage that can still catch the problem. CI runs 
 | Sub-agent stops, `git push` | Rebase check on push, then affected `lint`, `typecheck`, `test` |
 | Pull request | Affected `lint`, `typecheck`, `test`, `build`, `e2e` |
 | Nightly | All `e2e`, fuzz for five minutes, all `mutation`; failures go to [one issue](../how-to/fix-a-nightly-failure.md) |
-| Push to main | Build the images, start them, poll `/healthz`, roll back on failure |
+| Push to main | All `lint`, `typecheck`, `test`, `build`, `e2e`. Build the images, start them, poll `/healthz`, roll back on failure |
