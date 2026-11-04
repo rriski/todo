@@ -43,7 +43,7 @@ export function App() {
 
   async function handleDelete(id: string) {
     await deleteTask(id);
-    setTaskList({ today, tasks: tasks.filter((task) => task.id !== id) });
+    setTaskList((list) => ({ ...list, tasks: list.tasks.filter((task) => task.id !== id) }));
   }
 
   return (
