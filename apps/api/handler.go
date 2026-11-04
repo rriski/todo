@@ -36,7 +36,7 @@ func newHandler(store Store) http.Handler {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		title := strings.TrimSpace(body.Title)
+		title := strings.TrimSuffix(strings.TrimPrefix(body.Title, " "), " ")
 		if title == "" {
 			http.Error(w, "title is required", http.StatusBadRequest)
 			return
