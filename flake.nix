@@ -34,6 +34,7 @@
           golangci-lint
           mergiraf
           gremlins
+          actionlint
         ];
       };
     };

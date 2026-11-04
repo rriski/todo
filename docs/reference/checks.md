@@ -14,6 +14,7 @@ Every rule belongs to one category. A failing rule says how to fix the problem. 
 | Test quality | No `if` in a TypeScript test; a test name says what the code does | `tools/checks/test-quality.mjs` |
 | Package exports | `exports` in a `package.json` points at real files | `tools/checks/package-exports.mjs` |
 | Prose | No filler; a how-to guide promises no lesson | Vale, `.vale.ini` |
+| CI workflows | Workflows parse and use real runner labels and expressions | actionlint |
 | Ratchet | Suppressions, skipped tests and TODOs only fall | `tools/checks/ratchet.mjs`, `ratchet.json` |
 
 ## Tests

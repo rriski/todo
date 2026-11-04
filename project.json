@@ -9,7 +9,8 @@
         "commands": [
           "node tools/checks/run.mjs",
           "pnpm exec ls-lint",
-          "vale docs .agents REVIEW.md AGENTS.md README.md"
+          "vale docs .agents REVIEW.md AGENTS.md README.md",
+          "actionlint"
         ],
         "parallel": false
       }

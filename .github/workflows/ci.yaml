@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  NX_BASE: origin/${{ github.base_ref }}
+  NX_HEAD: HEAD
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: nix develop --command bash -e {0}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - name: lint
+        run: pnpm nx affected -t lint
+
+      - name: typecheck
+        run: pnpm nx affected -t typecheck
+
+      - name: test
+        run: pnpm nx affected -t test
+
+      - name: build
+        run: pnpm nx affected -t build
+
+      - name: install the browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: e2e
+        run: pnpm nx affected -t e2e
