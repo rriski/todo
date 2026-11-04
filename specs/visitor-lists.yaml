@@ -15,3 +15,4 @@ page:
 deploy:
   LIST-9: With `WEB_DIR` set, the API serves that folder, so the `app` image holds the page and the API on one origin.
   LIST-10: "`fly.toml` runs one machine, because the lists live in its memory and end when it stops."
+  LIST-11: "`fly.toml` deploys bluegreen: when the new machine fails its health check, Fly deletes it and the old machine keeps serving."
