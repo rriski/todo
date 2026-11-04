@@ -13,6 +13,10 @@ func FuzzDecodeTask(f *testing.F) {
 	f.Add(`{"title":"  "}`)
 	f.Add(`{"title":1}`)
 	f.Add(`{`)
+	f.Add(`{"title":"Buy milk","dueDate":"2026-11-04"}`)
+	f.Add(`{"title":"Buy milk","dueDate":"2026-02-30"}`)
+	f.Add(`{"title":"Buy milk","dueDate":""}`)
+	f.Add(`{"title":"Buy milk","dueDate":null}`)
 
 	f.Fuzz(func(t *testing.T, body string) {
 		request := httptest.NewRequest(http.MethodPost, "/api/tasks", strings.NewReader(body))
@@ -29,6 +33,9 @@ func FuzzDecodeTask(f *testing.F) {
 			}
 			if task.Title == "" || task.Title != strings.TrimSpace(task.Title) {
 				t.Errorf("stored title %q is blank or untrimmed", task.Title)
+			}
+			if task.DueDate != "" && !isCalendarDate(task.DueDate) {
+				t.Errorf("stored due date %q is not a calendar date", task.DueDate)
 			}
 		default:
 			t.Errorf("status = %d, want 201 or 400", response.Code)

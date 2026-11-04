@@ -11,7 +11,7 @@ func TestStoreIDsStayUnique(t *testing.T) {
 		store := newMemoryStore()
 		t.Repeat(map[string]func(*rapid.T){
 			"add": func(t *rapid.T) {
-				store.Add(rapid.String().Draw(t, "title"))
+				store.Add(rapid.String().Draw(t, "title"), "")
 			},
 			"delete": func(t *rapid.T) {
 				if tasks := store.List(); len(tasks) > 0 {
