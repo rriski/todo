@@ -2,13 +2,16 @@ name: ci
 
 on:
   pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.head_ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   NX_BASE: origin/${{ github.base_ref }}
@@ -28,6 +31,10 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
+
+      - name: check everything on main
+        if: github.event_name != 'pull_request'
+        run: echo "NX_BASE=$(git rev-list --max-parents=0 HEAD)" >> "$GITHUB_ENV"
 
       - name: lint
         run: pnpm nx affected -t lint
