@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+if git fetch --quiet origin main; then
+  if ! git merge-base --is-ancestor origin/main HEAD; then
+    behind=$(git rev-list --count HEAD..origin/main)
+    echo "pre-push: this branch is $behind commit(s) behind origin/main. Rebasing."
+    if git rebase --autostash --quiet origin/main; then
+      echo "pre-push: rebased onto origin/main. Push again, with --force-with-lease if the remote holds this branch."
+    else
+      git rebase --abort
+      echo "pre-push: the rebase hit a conflict. Run git rebase origin/main, resolve it, and push again."
+    fi
+    exit 1
+  fi
+else
+  echo "pre-push: cannot fetch origin, so the rebase check did not run."
+fi
+
+exec ./scripts/affected.sh

@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+
+staged() { git diff --cached --name-only --diff-filter=ACMR -- "$@"; }
+
+code=$(staged '*.ts' '*.tsx' '*.mjs')
+if [ -n "$code" ]; then
+  node_modules/.bin/oxfmt --write $code
+  node_modules/.bin/oxlint --deny-warnings $code
+  git add $code
+fi
+
+go=$(staged '*.go')
+if [ -n "$go" ]; then
+  gofmt -w $go
+  git add $go
+fi
+
+prose=$(staged '*.md')
+if [ -n "$prose" ]; then
+  vale $prose
+fi

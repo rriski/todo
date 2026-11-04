@@ -1,0 +1,12 @@
+*.go merge=mergiraf
+*.ts merge=mergiraf
+*.tsx merge=mergiraf
+*.mjs merge=mergiraf
+*.json merge=mergiraf
+*.yaml merge=mergiraf
+*.md merge=mergiraf
+go.mod merge=mergiraf
+go.sum merge=mergiraf
+pnpm-lock.yaml merge=text
+flake.lock merge=text
+*.png binary

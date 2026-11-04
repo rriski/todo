@@ -21,7 +21,9 @@ handlers[input.hook_event_name]?.();
 function SessionStart() {
   const missing = [];
   if (!existsSync("node_modules")) missing.push("node_modules");
-  for (const tool of ["go", "pnpm", "vale", "golangci-lint"]) {
+  if (run("git", ["config", "core.hooksPath"]).output.trim() !== ".githooks")
+    missing.push("git hooks");
+  for (const tool of ["go", "pnpm", "vale", "golangci-lint", "mergiraf"]) {
     if (!run("which", [tool]).ok) missing.push(tool);
   }
   const setup = missing.length

@@ -19,6 +19,7 @@
           pnpm
           vale
           golangci-lint
+          mergiraf
         ];
       };
     };
