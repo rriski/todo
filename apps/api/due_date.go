@@ -21,7 +21,7 @@ func isOverdue(task Task, today string) bool {
 	return !task.Completed && task.DueDate != "" && task.DueDate < today
 }
 
-// sortTasks implements DUE-11 in specs/due-dates.yaml.
+// due-dates.API.8
 func sortTasks(tasks []Task, today string) {
 	group := func(task Task) int {
 		switch {
