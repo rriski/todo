@@ -16,6 +16,7 @@ A small todo app in a pnpm and Nx workspace: a React page and a Go API.
 - `gh issue list --label nightly`: read the last nightly failures. `docs/how-to/fix-a-nightly-failure.md` says what to do.
 - `pnpm nx run-many -t serve -p api web`: run the app on port 5173.
 - `./scripts/deploy-dev.sh <tag>`: build the images, start them, and roll back if `/healthz` fails.
+- `pnpm nx build web && flyctl deploy --ha=false`: deploy the public demo that `fly.toml` describes.
 - `scripts/watch-pr <number>`: wait in the background until a pull request needs you.
 - `scripts/trace-change start <name>`: trace one change. `docs/reference/tracing.md` lists the commands.
 

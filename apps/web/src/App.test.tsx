@@ -122,6 +122,17 @@ it("rejects a blank title", async () => {
   expect(addTask).not.toHaveBeenCalled();
 });
 
+it("shows why the API refused a task and keeps the title", async () => {
+  vi.mocked(addTask).mockRejectedValue(new Error("a list holds at most 50 tasks"));
+  render(<App />);
+  const title = screen.getByRole("textbox", { name: "New task" }) as HTMLInputElement;
+
+  await userEvent.type(title, "Call Sam{Enter}");
+
+  expect((await screen.findByRole("alert")).textContent).toBe("a list holds at most 50 tasks");
+  expect(title.value).toBe("Call Sam");
+});
+
 it("keeps a reload that finishes while a delete is pending", async () => {
   const pendingDelete: { finish?: () => void } = {};
   vi.mocked(deleteTask).mockReturnValue(

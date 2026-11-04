@@ -30,7 +30,12 @@ export function App() {
     setError(validationError);
     if (validationError) return;
 
-    await addTask(dueDate === "" ? { title } : { title, dueDate });
+    try {
+      await addTask(dueDate === "" ? { title } : { title, dueDate });
+    } catch (failure) {
+      setError((failure as Error).message);
+      return;
+    }
     setTaskList(await loadTasks());
     setTitle("");
     setDueDate("");

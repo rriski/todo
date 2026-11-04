@@ -2,16 +2,22 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
+	"unicode/utf8"
+)
+
+const (
+	maxTitleLength = 200
+	maxBodyBytes   = 4096
 )
 
 func newHandler(store Store) http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
-	})
+	mux.HandleFunc("GET /healthz", healthz)
 
 	mux.HandleFunc("GET /api/tasks", func(w http.ResponseWriter, r *http.Request) {
 		today := localToday()
@@ -32,13 +38,16 @@ func newHandler(store Store) http.Handler {
 			Title   string  `json:"title"`
 			DueDate *string `json:"dueDate"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+		if !decodeBody(w, r, &body) {
 			return
 		}
 		title := strings.TrimSpace(body.Title)
 		if title == "" {
 			http.Error(w, "title is required", http.StatusBadRequest)
+			return
+		}
+		if utf8.RuneCountInString(title) > maxTitleLength {
+			http.Error(w, fmt.Sprintf("title must be at most %d characters", maxTitleLength), http.StatusBadRequest)
 			return
 		}
 		var dueDate string
@@ -49,15 +58,19 @@ func newHandler(store Store) http.Handler {
 				return
 			}
 		}
-		writeJSON(w, http.StatusCreated, store.Add(title, dueDate))
+		task, added := store.Add(title, dueDate)
+		if !added {
+			http.Error(w, fmt.Sprintf("a list holds at most %d tasks", maxTasks), http.StatusConflict)
+			return
+		}
+		writeJSON(w, http.StatusCreated, task)
 	})
 
 	mux.HandleFunc("PATCH /api/tasks/{id}", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
 			Completed bool `json:"completed"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+		if !decodeBody(w, r, &body) {
 			return
 		}
 		task, found := store.SetCompleted(r.PathValue("id"), body.Completed)
@@ -77,6 +90,22 @@ func newHandler(store Store) http.Handler {
 	})
 
 	return mux
+}
+
+func healthz(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+}
+
+func decodeBody(w http.ResponseWriter, r *http.Request, body any) bool {
+	err := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBodyBytes)).Decode(body)
+	var tooLarge *http.MaxBytesError
+	switch {
+	case errors.As(err, &tooLarge):
+		http.Error(w, fmt.Sprintf("the body must be at most %d bytes", maxBodyBytes), http.StatusRequestEntityTooLarge)
+	case err != nil:
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	return err == nil
 }
 
 func writeJSON(w http.ResponseWriter, status int, value any) {

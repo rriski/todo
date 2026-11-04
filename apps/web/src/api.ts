@@ -13,6 +13,7 @@ export async function addTask(task: NewTask): Promise<Task> {
     headers: jsonHeaders,
     body: JSON.stringify(task),
   });
+  if (!response.ok) throw new Error(await response.text());
   return response.json();
 }
 

@@ -117,7 +117,8 @@ func TestListOrdersOverdueThenDatedThenUndated(t *testing.T) {
 	store.Add("undated second", "")
 	store.Add("overdue older", "2026-10-01")
 	store.Add("dated later tie", "2026-12-01")
-	store.SetCompleted(store.Add("completed past due", "2026-01-01").ID, true)
+	pastDue, _ := store.Add("completed past due", "2026-01-01")
+	store.SetCompleted(pastDue.ID, true)
 	store.Add("overdue newer tie", "2026-11-02")
 	response := httptest.NewRecorder()
 
@@ -135,7 +136,8 @@ func TestListOrdersOverdueThenDatedThenUndated(t *testing.T) {
 
 func TestListFallsBackToTheLocalDate(t *testing.T) {
 	store := newMemoryStore()
-	store.SetCompleted(store.Add("completed long ago", "2000-01-01").ID, true)
+	longAgo, _ := store.Add("completed long ago", "2000-01-01")
+	store.SetCompleted(longAgo.ID, true)
 	store.Add("due yesterday", time.Now().AddDate(0, 0, -1).Format(dateLayout))
 	store.Add("due tomorrow", time.Now().AddDate(0, 0, 1).Format(dateLayout))
 	response := httptest.NewRecorder()
@@ -145,6 +147,106 @@ func TestListFallsBackToTheLocalDate(t *testing.T) {
 	want := []string{"due yesterday", "completed long ago", "due tomorrow"}
 	if got := titles(t, response); !slices.Equal(got, want) {
 		t.Errorf("order = %q, want %q", got, want)
+	}
+}
+
+func TestAddEnforcesTheTitleLength(t *testing.T) {
+	tests := []struct {
+		name       string
+		title      string
+		wantStatus int
+	}{
+		{"at the limit", strings.Repeat("a", maxTitleLength), http.StatusCreated},
+		{"over the limit", strings.Repeat("a", maxTitleLength+1), http.StatusBadRequest},
+		{"counts characters, not bytes", strings.Repeat("ä", maxTitleLength), http.StatusCreated},
+		{"ignores surrounding space", strings.Repeat("a", maxTitleLength) + " ", http.StatusCreated},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			store := newMemoryStore()
+			body := strings.NewReader(`{"title":"` + tt.title + `"}`)
+			response := httptest.NewRecorder()
+
+			newHandler(store).ServeHTTP(response, httptest.NewRequest(http.MethodPost, "/api/tasks", body))
+
+			if response.Code != tt.wantStatus {
+				t.Errorf("status = %d, want %d", response.Code, tt.wantStatus)
+			}
+			wantStored := 0
+			if tt.wantStatus == http.StatusCreated {
+				wantStored = 1
+			}
+			if got := len(store.List()); got != wantStored {
+				t.Errorf("stored %d tasks, want %d", got, wantStored)
+			}
+		})
+	}
+}
+
+func TestAddRefusesATaskOverTheListLimit(t *testing.T) {
+	store := newMemoryStore()
+	for range maxTasks {
+		if _, added := store.Add("Buy milk", ""); !added {
+			t.Fatal("refused a task under the limit")
+		}
+	}
+	response := httptest.NewRecorder()
+
+	newHandler(store).ServeHTTP(response, httptest.NewRequest(http.MethodPost, "/api/tasks", strings.NewReader(`{"title":"Call Sam"}`)))
+
+	if response.Code != http.StatusConflict {
+		t.Errorf("status = %d, want 409", response.Code)
+	}
+	if got := strings.TrimSpace(response.Body.String()); got != "a list holds at most 50 tasks" {
+		t.Errorf("body = %s", got)
+	}
+	if got := len(store.List()); got != maxTasks {
+		t.Errorf("stored %d tasks, want %d", got, maxTasks)
+	}
+}
+
+func TestDeleteFreesRoomUnderTheListLimit(t *testing.T) {
+	store := newMemoryStore()
+	var last Task
+	for range maxTasks {
+		last, _ = store.Add("Buy milk", "")
+	}
+
+	store.Delete(last.ID)
+
+	if _, added := store.Add("Call Sam", ""); !added {
+		t.Error("refused a task after a delete made room")
+	}
+}
+
+func TestBodyOverTheLimitIsRefused(t *testing.T) {
+	large := strings.Repeat(" ", maxBodyBytes+1)
+	tests := []struct {
+		name   string
+		method string
+		path   string
+		body   string
+	}{
+		{"add", http.MethodPost, "/api/tasks", large + `{"title":"Call Sam"}`},
+		{"complete", http.MethodPatch, "/api/tasks/1", large + `{"completed":true}`},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			store := newMemoryStore()
+			store.Add("Buy milk", "")
+			response := httptest.NewRecorder()
+
+			newHandler(store).ServeHTTP(response, httptest.NewRequest(tt.method, tt.path, strings.NewReader(tt.body)))
+
+			if response.Code != http.StatusRequestEntityTooLarge {
+				t.Errorf("status = %d, want 413", response.Code)
+			}
+			if tasks := store.List(); len(tasks) != 1 || tasks[0].Completed {
+				t.Errorf("tasks = %v, want the task unchanged", tasks)
+			}
+		})
 	}
 }
 

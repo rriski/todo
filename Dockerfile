@@ -10,3 +10,7 @@ ENTRYPOINT ["/api"]
 FROM nginx:1-alpine AS web
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY apps/web/dist /usr/share/nginx/html
+
+FROM api AS app
+COPY apps/web/dist /web
+ENV WEB_DIR=/web

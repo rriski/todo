@@ -4,7 +4,7 @@
   "type": "object",
   "properties": {
     "id": { "type": "string" },
-    "title": { "type": "string", "pattern": "\\S" },
+    "title": { "type": "string", "pattern": "\\S", "maxLength": 200 },
     "completed": { "type": "boolean" },
     "dueDate": { "type": "string", "format": "date" }
   },

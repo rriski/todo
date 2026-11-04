@@ -6,9 +6,19 @@ The Go API listens on port 8080. Bodies are JSON. A task has `id`, `title`, `com
 | --- | --- | --- | --- |
 | `GET /healthz` | | 200, `{"status": "ok"}` | |
 | `GET /api/tasks?today=2026-11-04` | | 200, all tasks, in the sort order below | 400, `today` is not a real calendar date |
-| `POST /api/tasks` | `{"title": "Buy milk", "dueDate": "2026-11-04"}` | 201, the task | 400, malformed, blank title, or `dueDate` is not a real calendar date |
-| `PATCH /api/tasks/{id}` | `{"completed": true}` | 200, the task | 400, malformed; 404, unknown id |
+| `POST /api/tasks` | `{"title": "Buy milk", "dueDate": "2026-11-04"}` | 201, the task | 400, malformed, blank title, title over 200 characters, or `dueDate` is not a real calendar date; 409, the list holds 50 tasks; 413, body over 4,096 bytes |
+| `PATCH /api/tasks/{id}` | `{"completed": true}` | 200, the task | 400, malformed; 404, unknown id; 413, body over 4,096 bytes |
 | `DELETE /api/tasks/{id}` | | 204 | 404, unknown id |
+
+## Visitor lists
+
+Each visitor has their own list, selected by a `todo_list` cookie that the API sets on the first `/api/` request. The cookie is `HttpOnly`, `Secure` and `SameSite=Lax`.
+
+- The API ignores a cookie value it did not issue, and starts a new list with a new cookie.
+- The API holds 1,000 lists, and evicts the least recently used one to make room for a new one.
+- Lists live in memory, so they end when the process stops.
+
+With `WEB_DIR` set, the API also serves the page from that folder.
 
 ## Due dates
 
