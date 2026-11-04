@@ -25,11 +25,14 @@ body {
 }
 
 .add-task input {
-  flex: 1;
   padding: 0.5rem 0.75rem;
   border: 1px solid #d9dce3;
   border-radius: 0.5rem;
   font: inherit;
+}
+
+.add-task input:first-child {
+  flex: 1;
 }
 
 .error {

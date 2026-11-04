@@ -51,3 +51,17 @@
   padding: 0.5rem 0;
   border-bottom: 1px solid #e8eaef;
 }
+
+.task-due {
+  color: #5f6673;
+  font-size: 0.875rem;
+}
+
+.chip-overdue {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: #b42318;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}

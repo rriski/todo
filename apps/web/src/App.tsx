@@ -1,16 +1,18 @@
 import { type SubmitEvent, useEffect, useState } from "react";
-import { tabTitle, type Task, validateTask } from "@todo/model";
+import { tabTitle, type Task, toCalendarDate, validateTask } from "@todo/model";
 import { Button, TaskRow } from "@todo/ui";
 import { addTask, deleteTask, listTasks, setTaskCompleted } from "./api";
 
 export function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [today] = useState(() => toCalendarDate(new Date()));
 
   useEffect(() => {
-    listTasks().then(setTasks);
-  }, []);
+    listTasks(today).then(setTasks);
+  }, [today]);
 
   useEffect(() => {
     document.title = tabTitle(tasks);
@@ -22,14 +24,15 @@ export function App() {
     setError(validationError);
     if (validationError) return;
 
-    const task = await addTask({ title });
-    setTasks([...tasks, task]);
+    await addTask(dueDate === "" ? { title } : { title, dueDate });
+    setTasks(await listTasks(today));
     setTitle("");
+    setDueDate("");
   }
 
   async function handleToggle(id: string, completed: boolean) {
-    const updated = await setTaskCompleted(id, completed);
-    setTasks(tasks.map((task) => (task.id === id ? updated : task)));
+    await setTaskCompleted(id, completed);
+    setTasks(await listTasks(today));
   }
 
   async function handleDelete(id: string) {
@@ -47,6 +50,12 @@ export function App() {
           value={title}
           onChange={(event) => setTitle(event.target.value)}
         />
+        <input
+          type="date"
+          aria-label="Due date"
+          value={dueDate}
+          onChange={(event) => setDueDate(event.target.value)}
+        />
         <Button type="submit">Add</Button>
       </form>
       {error && (
@@ -62,6 +71,7 @@ export function App() {
             <TaskRow
               key={task.id}
               task={task}
+              today={today}
               onToggle={(completed) => handleToggle(task.id, completed)}
               onDelete={() => handleDelete(task.id)}
             />
