@@ -144,6 +144,28 @@ it("ignores a reload that finishes after a later delete", async () => {
   expect(screen.getByRole("checkbox", { name: "Call Sam" })).toBeTruthy();
 });
 
+it("removes a deleted task before its reload finishes", async () => {
+  const slowReload: { finish?: (tasks: Task[]) => void } = {};
+  vi.mocked(listTasks).mockResolvedValue([milk, sam]);
+  vi.mocked(deleteTask).mockResolvedValue();
+  render(<App />);
+  await screen.findByRole("checkbox", { name: "Buy milk" });
+  vi.mocked(listTasks).mockReturnValueOnce(
+    new Promise<Task[]>((resolve) => (slowReload.finish = resolve)),
+  );
+
+  await userEvent.click(screen.getByRole("button", { name: "Delete Buy milk" }));
+  await waitFor(() => expect(listTasks).toHaveBeenCalledTimes(2));
+
+  expect(screen.queryByRole("checkbox", { name: "Buy milk" })).toBeNull();
+  expect(screen.getByRole("checkbox", { name: "Call Sam" })).toBeTruthy();
+
+  await act(async () => slowReload.finish?.([sam]));
+
+  expect(screen.queryByRole("checkbox", { name: "Buy milk" })).toBeNull();
+  expect(screen.getByRole("checkbox", { name: "Call Sam" })).toBeTruthy();
+});
+
 it("deletes a task", async () => {
   vi.mocked(deleteTask).mockResolvedValue();
   render(<App />);
