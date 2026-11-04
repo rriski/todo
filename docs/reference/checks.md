@@ -27,3 +27,16 @@ Every rule belongs to one category. A failing rule says how to fix the problem. 
 | Fuzz | No request body crashes the API, and a stored title is never blank | `apps/api/task_fuzz_test.go` |
 | Visual | The task list matches its committed screenshot | `apps/web-e2e/src/visual.spec.ts` |
 | Mutation | The tests fail when the code changes, 80% or better | Stryker on `packages/todo-model`, Gremlins on `apps/api` |
+
+## Where each check runs
+
+Each check runs at the cheapest stage that can still catch the problem. CI runs the affected ones again, because a local hook can be skipped.
+
+| Stage | What runs |
+| --- | --- |
+| Every agent edit | Format and lint the edited file |
+| `git commit` | Format staged files, fast lint, Vale on staged pages, repository checks |
+| Sub-agent stops, `git push` | Rebase check on push, then affected `lint`, `typecheck`, `test` |
+| Pull request | Affected `lint`, `typecheck`, `test`, `build`, `e2e` |
+| Nightly | All `e2e`, fuzz for five minutes, all `mutation`; failures go to [one issue](../how-to/fix-a-nightly-failure.md) |
+| Push to main | Build the images, start them, poll `/healthz`, roll back on failure |
