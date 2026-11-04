@@ -14,12 +14,23 @@ func newHandler(store Store) http.Handler {
 	})
 
 	mux.HandleFunc("GET /api/tasks", func(w http.ResponseWriter, r *http.Request) {
-		writeJSON(w, http.StatusOK, store.List())
+		today := localToday()
+		if query := r.URL.Query(); query.Has("today") {
+			today = query.Get("today")
+		}
+		if !isCalendarDate(today) {
+			http.Error(w, "today must be a date written YYYY-MM-DD", http.StatusBadRequest)
+			return
+		}
+		tasks := store.List()
+		sortTasks(tasks, today)
+		writeJSON(w, http.StatusOK, tasks)
 	})
 
 	mux.HandleFunc("POST /api/tasks", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
-			Title string `json:"title"`
+			Title   string  `json:"title"`
+			DueDate *string `json:"dueDate"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -30,7 +41,15 @@ func newHandler(store Store) http.Handler {
 			http.Error(w, "title is required", http.StatusBadRequest)
 			return
 		}
-		writeJSON(w, http.StatusCreated, store.Add(title))
+		var dueDate string
+		if body.DueDate != nil {
+			dueDate = *body.DueDate
+			if !isCalendarDate(dueDate) {
+				http.Error(w, "dueDate must be a date written YYYY-MM-DD", http.StatusBadRequest)
+				return
+			}
+		}
+		writeJSON(w, http.StatusCreated, store.Add(title, dueDate))
 	})
 
 	mux.HandleFunc("PATCH /api/tasks/{id}", func(w http.ResponseWriter, r *http.Request) {

@@ -1,15 +1,23 @@
 import { type SubmitEvent, useEffect, useState } from "react";
-import { tabTitle, type Task, validateTask } from "@todo/model";
+import { tabTitle, type Task, toCalendarDate, validateTask } from "@todo/model";
 import { Button, TaskRow } from "@todo/ui";
 import { addTask, deleteTask, listTasks, setTaskCompleted } from "./api";
 
+type TaskList = { today: string; tasks: Task[] };
+
+async function loadTasks(): Promise<TaskList> {
+  const today = toCalendarDate(new Date());
+  return { today, tasks: await listTasks(today) };
+}
+
 export function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [{ today, tasks }, setTaskList] = useState<TaskList>({ today: "", tasks: [] });
   const [title, setTitle] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    listTasks().then(setTasks);
+    loadTasks().then(setTaskList);
   }, []);
 
   useEffect(() => {
@@ -22,19 +30,20 @@ export function App() {
     setError(validationError);
     if (validationError) return;
 
-    const task = await addTask({ title });
-    setTasks([...tasks, task]);
+    await addTask(dueDate === "" ? { title } : { title, dueDate });
+    setTaskList(await loadTasks());
     setTitle("");
+    setDueDate("");
   }
 
   async function handleToggle(id: string, completed: boolean) {
-    const updated = await setTaskCompleted(id, completed);
-    setTasks(tasks.map((task) => (task.id === id ? updated : task)));
+    await setTaskCompleted(id, completed);
+    setTaskList(await loadTasks());
   }
 
   async function handleDelete(id: string) {
     await deleteTask(id);
-    setTasks(tasks.filter((task) => task.id !== id));
+    setTaskList((list) => ({ ...list, tasks: list.tasks.filter((task) => task.id !== id) }));
   }
 
   return (
@@ -46,6 +55,12 @@ export function App() {
           placeholder="What needs doing?"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
+        />
+        <input
+          type="date"
+          aria-label="Due date"
+          value={dueDate}
+          onChange={(event) => setDueDate(event.target.value)}
         />
         <Button type="submit">Add</Button>
       </form>
@@ -62,6 +77,7 @@ export function App() {
             <TaskRow
               key={task.id}
               task={task}
+              today={today}
               onToggle={(completed) => handleToggle(task.id, completed)}
               onDelete={() => handleDelete(task.id)}
             />

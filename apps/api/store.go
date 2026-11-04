@@ -10,11 +10,12 @@ type Task struct {
 	ID        string `json:"id"`
 	Title     string `json:"title"`
 	Completed bool   `json:"completed"`
+	DueDate   string `json:"dueDate,omitempty"`
 }
 
 type Store interface {
 	List() []Task
-	Add(title string) Task
+	Add(title, dueDate string) Task
 	SetCompleted(id string, completed bool) (Task, bool)
 	Delete(id string) bool
 }
@@ -35,10 +36,10 @@ func (s *memoryStore) List() []Task {
 	return slices.Clone(s.tasks)
 }
 
-func (s *memoryStore) Add(title string) Task {
+func (s *memoryStore) Add(title, dueDate string) Task {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	task := Task{ID: strconv.Itoa(s.nextID), Title: title}
+	task := Task{ID: strconv.Itoa(s.nextID), Title: title, DueDate: dueDate}
 	s.nextID++
 	s.tasks = append(s.tasks, task)
 	return task

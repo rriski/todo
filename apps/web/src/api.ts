@@ -2,8 +2,8 @@ import type { NewTask, Task } from "@todo/model";
 
 const jsonHeaders = { "Content-Type": "application/json" };
 
-export async function listTasks(): Promise<Task[]> {
-  const response = await fetch("/api/tasks");
+export async function listTasks(today: string): Promise<Task[]> {
+  const response = await fetch(`/api/tasks?${new URLSearchParams({ today })}`);
   return response.json();
 }
 

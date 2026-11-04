@@ -19,28 +19,44 @@ func TestTaskMatchesSchema(t *testing.T) {
 		Properties map[string]struct {
 			Type string `json:"type"`
 		} `json:"properties"`
+		Required []string `json:"required"`
 	}
 	if err := json.Unmarshal(raw, &schema); err != nil {
 		t.Fatal(err)
 	}
 
-	encoded, err := json.Marshal(Task{ID: "1", Title: "Buy milk"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	var task map[string]any
-	if err := json.Unmarshal(encoded, &task); err != nil {
-		t.Fatal(err)
-	}
-
-	if len(task) != len(schema.Properties) {
-		t.Errorf("task has %d fields, schema has %d", len(task), len(schema.Properties))
+	full := encode(t, Task{ID: "1", Title: "Buy milk", DueDate: "2026-11-04"})
+	if len(full) != len(schema.Properties) {
+		t.Errorf("task has %d fields, schema has %d", len(full), len(schema.Properties))
 	}
 	for name, property := range schema.Properties {
-		if got := jsonType(task[name]); got != property.Type {
+		if got := jsonType(full[name]); got != property.Type {
 			t.Errorf("%s has type %q, schema says %q", name, got, property.Type)
 		}
 	}
+
+	bare := encode(t, Task{ID: "1", Title: "Buy milk"})
+	if len(bare) != len(schema.Required) {
+		t.Errorf("task without optional fields has %d fields, schema requires %d", len(bare), len(schema.Required))
+	}
+	for _, name := range schema.Required {
+		if _, ok := bare[name]; !ok {
+			t.Errorf("task without optional fields omits the required %s", name)
+		}
+	}
+}
+
+func encode(t *testing.T, task Task) map[string]any {
+	t.Helper()
+	encoded, err := json.Marshal(task)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fields map[string]any
+	if err := json.Unmarshal(encoded, &fields); err != nil {
+		t.Fatal(err)
+	}
+	return fields
 }
 
 func jsonType(value any) string {

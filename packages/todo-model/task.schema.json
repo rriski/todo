@@ -5,7 +5,8 @@
   "properties": {
     "id": { "type": "string" },
     "title": { "type": "string", "pattern": "\\S" },
-    "completed": { "type": "boolean" }
+    "completed": { "type": "boolean" },
+    "dueDate": { "type": "string", "format": "date" }
   },
   "required": ["id", "title", "completed"],
   "additionalProperties": false

@@ -1,0 +1,27 @@
+feature: due-dates
+issue: 1
+
+model:
+  DUE-1: A task has an optional `dueDate`, a calendar date written `YYYY-MM-DD`.
+  DUE-2: A task without a due date omits `dueDate` from its JSON.
+  DUE-3: The TypeScript `Task`, `task.schema.json` and the Go `Task` describe the same fields.
+
+api:
+  DUE-4: "`POST /api/tasks` accepts an optional `dueDate`."
+  DUE-5: "`POST /api/tasks` returns 400 and stores nothing when `dueDate` is present but not a real calendar date, including an empty string."
+  DUE-6: "`POST /api/tasks` accepts a `dueDate` in the past."
+  DUE-7: "`PATCH /api/tasks/{id}` never changes `dueDate`."
+  DUE-8: "`GET /api/tasks` accepts an optional `today=YYYY-MM-DD` and falls back to the API's local date without it."
+  DUE-9: "`GET /api/tasks` returns 400 when `today` is not a real calendar date."
+  DUE-10: A task is overdue when it is not completed and its `dueDate` is before `today`.
+  DUE-11: "`GET /api/tasks` returns overdue tasks by due date, then other dated tasks by due date, then undated tasks; within a group, tasks with the same due date keep the order added."
+
+page:
+  DUE-12: The add form has an optional date input; when it is empty, the request omits `dueDate`.
+  DUE-13: The page requests tasks with `today` set to the browser's local date.
+  DUE-14: A row with a due date shows the date in the browser's locale format.
+  DUE-15: An overdue row shows a red chip with the text "Overdue"; a completed row never shows it.
+  DUE-16: After a task is added or its completion changes, the list shows the API's order.
+
+docs:
+  DUE-17: "`docs/reference/api.md` and `README.md` describe `dueDate`, `today` and the sort order."
