@@ -1,0 +1,51 @@
+name: deploy-dev
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      health_path:
+        description: Path to poll. /api/missing shows the rollback.
+        default: /healthz
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: nix develop --command bash -e {0}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - name: Build the page
+        run: pnpm nx build web
+
+      - name: Restore the last healthy images
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .scratch/deploy
+          key: deployed-${{ github.sha }}
+          restore-keys: deployed-
+
+      - name: Deploy, and roll back if the health check fails
+        run: ./scripts/deploy-dev.sh "$GITHUB_SHA"
+        env:
+          HEALTH_PATH: ${{ inputs.health_path || '/healthz' }}
+
+      - name: Keep the images for the next rollback
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .scratch/deploy
+          key: deployed-${{ github.sha }}-${{ github.run_attempt }}

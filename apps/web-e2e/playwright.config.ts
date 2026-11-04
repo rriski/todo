@@ -9,7 +9,7 @@ export default defineConfig({
   use: { baseURL: "http://localhost:5173" },
   projects: [{ name: "chromium", use: devices["Desktop Chrome"] }],
   webServer: [
-    { command: "go run .", cwd: "../api", url: "http://localhost:8080/api/tasks" },
+    { command: "go run .", cwd: "../api", url: "http://localhost:8080/healthz" },
     { command: "pnpm exec vite", cwd: "../web", url: "http://localhost:5173" },
   ],
 });

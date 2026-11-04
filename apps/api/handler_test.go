@@ -16,6 +16,7 @@ func TestHandler(t *testing.T) {
 		wantStatus int
 		wantBody   string
 	}{
+		{"health", "GET", "/healthz", "", 200, `{"status":"ok"}`},
 		{"list", "GET", "/api/tasks", "", 200, `[{"id":"1","title":"Buy milk","completed":false}]`},
 		{"add", "POST", "/api/tasks", `{"title":"Call Sam"}`, 201, `{"id":"2","title":"Call Sam","completed":false}`},
 		{"add trims the title", "POST", "/api/tasks", `{"title":" Call Sam "}`, 201, `{"id":"2","title":"Call Sam","completed":false}`},

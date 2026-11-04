@@ -14,6 +14,7 @@ A small todo app in a pnpm and Nx workspace: a React page and a Go API.
 - `pnpm nx run-many -t mutation`: run mutation tests. Reports land in `.scratch/mutation`.
 - `gh issue list --label nightly`: read the last nightly failures. `docs/how-to/fix-a-nightly-failure.md` says what to do.
 - `pnpm nx run-many -t serve -p api web`: run the app on port 5173.
+- `./scripts/deploy-dev.sh <tag>`: build the images, start them, and roll back if `/healthz` fails.
 
 ## Layout
 

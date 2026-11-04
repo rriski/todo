@@ -1,0 +1,5 @@
+.git
+.nx
+.scratch
+node_modules
+**/node_modules
