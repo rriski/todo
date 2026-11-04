@@ -22,9 +22,9 @@ Every rule belongs to one category. A failing rule says how to fix the problem. 
 | Kind | What it proves | Where |
 | --- | --- | --- |
 | Unit | One behavior, in Vitest or `go test` | Beside the code |
-| Browser | A user can add and complete a task | `apps/web-e2e/src/tasks.spec.ts` |
+| Browser | A user can add and complete a task; an overdue task sorts first and loses its chip when completed | `apps/web-e2e/src/tasks.spec.ts` |
 | Property | Whitespace around a title never changes the verdict; task ids stay unique through any adds and deletes | `task.property.test.ts`, `store_property_test.go` |
-| Fuzz | No request body crashes the API, and a stored title is never blank | `apps/api/task_fuzz_test.go` |
+| Fuzz | No request body crashes the API, a stored title is never blank, and a stored due date is a real calendar date | `apps/api/task_fuzz_test.go` |
 | Visual | The task list matches its committed screenshot | `apps/web-e2e/src/visual.spec.ts` |
 | Mutation | The tests fail when the code changes, 80% or better | Stryker on `packages/todo-model`, Gremlins on `apps/api` |
 
