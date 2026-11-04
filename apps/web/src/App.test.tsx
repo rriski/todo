@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { toCalendarDate } from "@todo/model";
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { App } from "./App";
 import { addTask, deleteTask, listTasks, setTaskCompleted } from "./api";
 
@@ -12,6 +12,10 @@ const sam = { id: "2", title: "Call Sam", completed: false };
 
 beforeEach(() => {
   vi.mocked(listTasks).mockResolvedValue([milk]);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 it("lists the tasks", async () => {
@@ -26,6 +30,22 @@ it("requests the tasks for the browser's local date", async () => {
   await screen.findByRole("checkbox", { name: "Buy milk" });
 
   expect(listTasks).toHaveBeenCalledWith(toCalendarDate(new Date()));
+});
+
+it("uses the date of each request after midnight passes", async () => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(2026, 10, 4, 23, 59));
+  vi.mocked(listTasks).mockResolvedValue([{ ...milk, dueDate: "2026-11-04" }]);
+  vi.mocked(addTask).mockResolvedValue(sam);
+  render(<App />);
+  await screen.findByRole("checkbox", { name: "Buy milk" });
+  expect(screen.queryByText("Overdue")).toBeNull();
+
+  vi.setSystemTime(new Date(2026, 10, 5, 0, 1));
+  await userEvent.type(screen.getByRole("textbox", { name: "New task" }), "Call Sam{Enter}");
+
+  expect(await screen.findByText("Overdue")).toBeTruthy();
+  expect(listTasks).toHaveBeenLastCalledWith("2026-11-05");
 });
 
 it("adds a task", async () => {

@@ -3,16 +3,22 @@ import { tabTitle, type Task, toCalendarDate, validateTask } from "@todo/model";
 import { Button, TaskRow } from "@todo/ui";
 import { addTask, deleteTask, listTasks, setTaskCompleted } from "./api";
 
+type TaskList = { today: string; tasks: Task[] };
+
+async function loadTasks(): Promise<TaskList> {
+  const today = toCalendarDate(new Date());
+  return { today, tasks: await listTasks(today) };
+}
+
 export function App() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [{ today, tasks }, setTaskList] = useState<TaskList>({ today: "", tasks: [] });
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [today] = useState(() => toCalendarDate(new Date()));
 
   useEffect(() => {
-    listTasks(today).then(setTasks);
-  }, [today]);
+    loadTasks().then(setTaskList);
+  }, []);
 
   useEffect(() => {
     document.title = tabTitle(tasks);
@@ -25,19 +31,19 @@ export function App() {
     if (validationError) return;
 
     await addTask(dueDate === "" ? { title } : { title, dueDate });
-    setTasks(await listTasks(today));
+    setTaskList(await loadTasks());
     setTitle("");
     setDueDate("");
   }
 
   async function handleToggle(id: string, completed: boolean) {
     await setTaskCompleted(id, completed);
-    setTasks(await listTasks(today));
+    setTaskList(await loadTasks());
   }
 
   async function handleDelete(id: string) {
     await deleteTask(id);
-    setTasks(tasks.filter((task) => task.id !== id));
+    setTaskList({ today, tasks: tasks.filter((task) => task.id !== id) });
   }
 
   return (
