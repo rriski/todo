@@ -20,7 +20,7 @@ ignore:
   - .stryker-tmp
   - .vale
   - dist
+  - "**/testdata"
   - "**/node_modules"
   - test-results
   - playwright-report
-  - apps/api/testdata

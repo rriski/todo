@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { toCalendarDate } from "@todo/model";
+import { type Task, toCalendarDate } from "@todo/model";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { App } from "./App";
 import { addTask, deleteTask, listTasks, setTaskCompleted } from "./api";
@@ -133,30 +133,57 @@ it("shows why the API refused a task and keeps the title", async () => {
   expect(title.value).toBe("Call Sam");
 });
 
-it("keeps a reload that finishes while a delete is pending", async () => {
-  const pendingDelete: { finish?: () => void } = {};
-  vi.mocked(deleteTask).mockReturnValue(
-    new Promise<void>((resolve) => (pendingDelete.finish = resolve)),
-  );
-  vi.mocked(setTaskCompleted).mockResolvedValue({ ...sam, completed: true });
+it("ignores a reload that finishes after a later delete", async () => {
+  const staleReload: { finish?: (tasks: Task[]) => void } = {};
   vi.mocked(listTasks).mockResolvedValue([milk, sam]);
+  vi.mocked(setTaskCompleted).mockResolvedValue({ ...milk, completed: true });
+  vi.mocked(deleteTask).mockResolvedValue();
   render(<App />);
-  await userEvent.click(await screen.findByRole("button", { name: "Delete Buy milk" }));
-  vi.mocked(listTasks).mockResolvedValue([milk, { ...sam, completed: true }]);
+  await screen.findByRole("checkbox", { name: "Buy milk" });
+  vi.mocked(listTasks).mockReturnValueOnce(
+    new Promise<Task[]>((resolve) => (staleReload.finish = resolve)),
+  );
 
-  await userEvent.click(screen.getByRole("checkbox", { name: "Call Sam" }));
-  await screen.findByRole("checkbox", { name: "Call Sam", checked: true });
-  pendingDelete.finish?.();
-
+  await userEvent.click(screen.getByRole("checkbox", { name: "Buy milk" }));
+  await waitFor(() => expect(listTasks).toHaveBeenCalledTimes(2));
+  vi.mocked(listTasks).mockResolvedValue([sam]);
+  await userEvent.click(screen.getByRole("button", { name: "Delete Buy milk" }));
   await waitFor(() => expect(screen.queryByRole("checkbox", { name: "Buy milk" })).toBeNull());
-  expect(screen.getByRole("checkbox", { name: "Call Sam", checked: true })).toBeTruthy();
+  await act(async () => staleReload.finish?.([{ ...milk, completed: true }, sam]));
+
+  expect(screen.queryByRole("checkbox", { name: "Buy milk" })).toBeNull();
+  expect(screen.getByRole("checkbox", { name: "Call Sam" })).toBeTruthy();
+});
+
+it("removes a deleted task before its reload finishes", async () => {
+  const slowReload: { finish?: (tasks: Task[]) => void } = {};
+  vi.mocked(listTasks).mockResolvedValue([milk, sam]);
+  vi.mocked(deleteTask).mockResolvedValue();
+  render(<App />);
+  await screen.findByRole("checkbox", { name: "Buy milk" });
+  vi.mocked(listTasks).mockReturnValueOnce(
+    new Promise<Task[]>((resolve) => (slowReload.finish = resolve)),
+  );
+
+  await userEvent.click(screen.getByRole("button", { name: "Delete Buy milk" }));
+  await waitFor(() => expect(listTasks).toHaveBeenCalledTimes(2));
+
+  expect(screen.queryByRole("checkbox", { name: "Buy milk" })).toBeNull();
+  expect(screen.getByRole("checkbox", { name: "Call Sam" })).toBeTruthy();
+
+  await act(async () => slowReload.finish?.([sam]));
+
+  expect(screen.queryByRole("checkbox", { name: "Buy milk" })).toBeNull();
+  expect(screen.getByRole("checkbox", { name: "Call Sam" })).toBeTruthy();
 });
 
 it("deletes a task", async () => {
   vi.mocked(deleteTask).mockResolvedValue();
   render(<App />);
+  await screen.findByRole("checkbox", { name: "Buy milk" });
+  vi.mocked(listTasks).mockResolvedValue([]);
 
-  await userEvent.click(await screen.findByRole("button", { name: "Delete Buy milk" }));
+  await userEvent.click(screen.getByRole("button", { name: "Delete Buy milk" }));
 
   expect(await screen.findByText("No tasks yet.")).toBeTruthy();
 });

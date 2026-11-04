@@ -1,4 +1,4 @@
-import { type SubmitEvent, useEffect, useState } from "react";
+import { type SubmitEvent, useCallback, useEffect, useRef, useState } from "react";
 import { tabTitle, type Task, toCalendarDate, validateTask } from "@todo/model";
 import { Button, TaskRow } from "@todo/ui";
 import { addTask, deleteTask, listTasks, setTaskCompleted } from "./api";
@@ -15,10 +15,17 @@ export function App() {
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const latestReload = useRef(0);
+
+  const reload = useCallback(async () => {
+    const request = ++latestReload.current;
+    const list = await loadTasks();
+    if (request === latestReload.current) setTaskList(list);
+  }, []);
 
   useEffect(() => {
-    loadTasks().then(setTaskList);
-  }, []);
+    reload();
+  }, [reload]);
 
   useEffect(() => {
     document.title = tabTitle(tasks);
@@ -36,19 +43,20 @@ export function App() {
       setError((failure as Error).message);
       return;
     }
-    setTaskList(await loadTasks());
+    await reload();
     setTitle("");
     setDueDate("");
   }
 
   async function handleToggle(id: string, completed: boolean) {
     await setTaskCompleted(id, completed);
-    setTaskList(await loadTasks());
+    await reload();
   }
 
   async function handleDelete(id: string) {
     await deleteTask(id);
     setTaskList((list) => ({ ...list, tasks: list.tasks.filter((task) => task.id !== id) }));
+    await reload();
   }
 
   return (
