@@ -51,6 +51,21 @@ it("adds a task with a due date", async () => {
   expect((screen.getByLabelText("Due date") as HTMLInputElement).value).toBe("");
 });
 
+it("adds the next task without the previous due date", async () => {
+  vi.mocked(addTask).mockResolvedValue({ ...sam, dueDate: "2026-12-01" });
+  render(<App />);
+  await screen.findByRole("checkbox", { name: "Buy milk" });
+  vi.mocked(listTasks).mockResolvedValue([milk, { ...sam, dueDate: "2026-12-01" }]);
+  const title = screen.getByRole("textbox", { name: "New task" });
+
+  await userEvent.type(screen.getByLabelText("Due date"), "2026-12-01");
+  await userEvent.type(title, "Call Sam{Enter}");
+  await screen.findByRole("checkbox", { name: "Call Sam" });
+  await userEvent.type(title, "Book the dentist{Enter}");
+
+  expect(addTask).toHaveBeenLastCalledWith({ title: "Book the dentist" });
+});
+
 it("shows the API's order after an add", async () => {
   vi.mocked(addTask).mockResolvedValue(sam);
   render(<App />);
