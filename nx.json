@@ -32,6 +32,13 @@
   },
   "plugins": [
     {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve"
+      }
+    },
+    {
       "plugin": "@nx/vitest",
       "options": {
         "testTargetName": "test"
