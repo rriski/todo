@@ -11,6 +11,7 @@ A small todo app in a pnpm and Nx workspace: a React page and a Go API.
 - `pnpm nx run-many -t lint`: run every lint rule. `docs/reference/checks.md` lists them.
 - `pnpm nx e2e web-e2e`: run the browser and visual tests. Add `--update-snapshots` after an intended visual change.
 - `pnpm nx fuzz api`: fuzz the task decoder for 30 seconds.
+- `pnpm nx run-many -t mutation`: run mutation tests. Reports land in `.scratch/mutation`.
 - `pnpm nx run-many -t serve -p api web`: run the app on port 5173.
 
 ## Layout

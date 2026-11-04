@@ -24,6 +24,17 @@
         "cwd": "apps/api"
       }
     },
+    "mutation": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "mkdir -p ../../.scratch/mutation",
+          "gremlins unleash --tags mutation --timeout-coefficient 30 --threshold-efficacy 80 --output ../../.scratch/mutation/api.json"
+        ],
+        "parallel": false,
+        "cwd": "apps/api"
+      }
+    },
     "serve": {
       "executor": "nx:run-commands",
       "continuous": true,

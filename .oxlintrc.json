@@ -7,5 +7,5 @@
     "import/no-unassigned-import": "off",
     "vitest/require-mock-type-parameters": "off"
   },
-  "ignorePatterns": ["dist", "test-results", "playwright-report", ".stryker-tmp"]
+  "ignorePatterns": ["dist", "test-results", "playwright-report", ".stryker-tmp", "stryker-setup-*.js"]
 }

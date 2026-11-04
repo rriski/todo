@@ -1,0 +1,10 @@
+{
+  "testRunner": "vitest",
+  "plugins": ["@stryker-mutator/vitest-runner"],
+  "inPlace": true,
+  "mutate": ["src/**/*.ts", "!src/**/*.test.ts"],
+  "reporters": ["clear-text", "json", "html"],
+  "jsonReporter": { "fileName": "../../.scratch/mutation/model.json" },
+  "htmlReporter": { "fileName": "../../.scratch/mutation/model.html" },
+  "thresholds": { "break": 80 }
+}

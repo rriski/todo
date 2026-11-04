@@ -25,3 +25,4 @@ Every rule belongs to one category. A failing rule says how to fix the problem. 
 | Property | Whitespace around a title never changes the verdict; task ids stay unique through any adds and deletes | `task.property.test.ts`, `store_property_test.go` |
 | Fuzz | No request body crashes the API, and a stored title is never blank | `apps/api/task_fuzz_test.go` |
 | Visual | The task list matches its committed screenshot | `apps/web-e2e/src/visual.spec.ts` |
+| Mutation | The tests fail when the code changes, 80% or better | Stryker on `packages/todo-model`, Gremlins on `apps/api` |

@@ -1,3 +1,7 @@
+//go:build !mutation
+
+// Gremlins tests a copy of this module, where the relative schema path is missing.
+
 package main
 
 import (
