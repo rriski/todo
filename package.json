@@ -1,0 +1,9 @@
+{
+  "name": "todo",
+  "private": true,
+  "packageManager": "pnpm@12.16.0",
+  "devDependencies": {
+    "nx": "^24.0.3",
+    "typescript": "^7.0.2"
+  }
+}
