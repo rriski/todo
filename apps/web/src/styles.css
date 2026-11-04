@@ -50,3 +50,27 @@ body {
   padding: 0;
   list-style: none;
 }
+
+@media (max-width: 600px) {
+  .page {
+    margin: 0;
+    padding: 1rem;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .add-task {
+    flex-wrap: wrap;
+  }
+
+  .add-task input {
+    box-sizing: border-box;
+    min-width: 0;
+    flex: 1 1 100%;
+    font-size: 1rem;
+  }
+
+  .add-task button {
+    flex: 1 1 100%;
+  }
+}
