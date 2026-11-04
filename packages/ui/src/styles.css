@@ -1,0 +1,53 @@
+.button {
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.button-primary {
+  background: #1f4fd8;
+  color: #fff;
+}
+
+.button-primary:hover {
+  background: #1a43b8;
+}
+
+.button-quiet {
+  background: none;
+  color: #5f6673;
+}
+
+.button-quiet:hover {
+  border-color: #d9dce3;
+  color: #1c2028;
+}
+
+.checkbox {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: #1f4fd8;
+}
+
+.checkbox input:checked + span {
+  color: #8a909c;
+  text-decoration: line-through;
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e8eaef;
+}
