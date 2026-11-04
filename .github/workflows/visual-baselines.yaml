@@ -1,0 +1,36 @@
+name: visual-baselines
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: nix develop --command bash -e {0}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - name: install the browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: take the screenshots
+        run: |
+          mkdir -p apps/web-e2e/src/__screenshots__/linux
+          pnpm nx e2e web-e2e --update-snapshots
+
+      - name: keep the screenshots
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: visual-baselines
+          if-no-files-found: error
+          path: apps/web-e2e/src/__screenshots__/linux

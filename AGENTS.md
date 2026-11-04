@@ -10,6 +10,7 @@ A small todo app in a pnpm and Nx workspace: a React page and a Go API.
 - `pnpm nx run-many -t typecheck`: check the TypeScript types.
 - `pnpm nx run-many -t lint`: run every lint rule. `docs/reference/checks.md` lists them.
 - `pnpm nx e2e web-e2e`: run the browser and visual tests. Add `--update-snapshots` after an intended visual change.
+- `gh workflow run visual-baselines`: take the Linux screenshots on a runner. Commit its artifact to `apps/web-e2e/src/__screenshots__/linux`.
 - `pnpm nx fuzz api`: fuzz the task decoder for 30 seconds.
 - `pnpm nx run-many -t mutation`: run mutation tests. Reports land in `.scratch/mutation`.
 - `gh issue list --label nightly`: read the last nightly failures. `docs/how-to/fix-a-nightly-failure.md` says what to do.
