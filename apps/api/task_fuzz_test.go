@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unicode/utf8"
 )
 
 func FuzzDecodeTask(f *testing.F) {
@@ -31,7 +32,7 @@ func FuzzDecodeTask(f *testing.F) {
 		newHandler(newMemoryStore()).ServeHTTP(response, request)
 
 		switch response.Code {
-		case http.StatusBadRequest:
+		case http.StatusBadRequest, http.StatusRequestEntityTooLarge:
 		case http.StatusCreated:
 			var task Task
 			if err := json.Unmarshal(response.Body.Bytes(), &task); err != nil {
@@ -39,6 +40,9 @@ func FuzzDecodeTask(f *testing.F) {
 			}
 			if task.Title == "" || task.Title != strings.TrimSpace(task.Title) {
 				t.Errorf("stored title %q is blank or untrimmed", task.Title)
+			}
+			if utf8.RuneCountInString(task.Title) > maxTitleLength {
+				t.Errorf("stored title %q is over the limit", task.Title)
 			}
 			if parsed, err := time.Parse(dateLayout, task.DueDate); task.DueDate != "" && (err != nil || parsed.Format(dateLayout) != task.DueDate) {
 				t.Errorf("stored due date %q does not format back to itself", task.DueDate)

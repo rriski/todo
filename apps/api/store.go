@@ -13,9 +13,11 @@ type Task struct {
 	DueDate   string `json:"dueDate,omitempty"`
 }
 
+const maxTasks = 50
+
 type Store interface {
 	List() []Task
-	Add(title, dueDate string) Task
+	Add(title, dueDate string) (Task, bool)
 	SetCompleted(id string, completed bool) (Task, bool)
 	Delete(id string) bool
 }
@@ -36,13 +38,16 @@ func (s *memoryStore) List() []Task {
 	return slices.Clone(s.tasks)
 }
 
-func (s *memoryStore) Add(title, dueDate string) Task {
+func (s *memoryStore) Add(title, dueDate string) (Task, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if len(s.tasks) >= maxTasks {
+		return Task{}, false
+	}
 	task := Task{ID: strconv.Itoa(s.nextID), Title: title, DueDate: dueDate}
 	s.nextID++
 	s.tasks = append(s.tasks, task)
-	return task
+	return task, true
 }
 
 func (s *memoryStore) SetCompleted(id string, completed bool) (Task, bool) {
